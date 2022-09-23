@@ -387,6 +387,8 @@ Bundle Interpreter::visitLogicalExpr(Logical* expr) {
     return evaluate(expr->right);
 }
 
+/*
+// TODO
 Bundle Interpreter::visitCallExpr(Call* expr) {
     Bundle callee = evaluate(expr->callee);
     vector<Bundle> arguments;
@@ -396,6 +398,7 @@ Bundle Interpreter::visitCallExpr(Call* expr) {
     
     
 }
+*/
 
 Bundle Interpreter::visitGroupingExpr(Grouping * expr) {
     if (INTERPRETER_TRACE) { cout << "called Interpreter::visitGroupingExpr\n"; }
@@ -686,12 +689,15 @@ Bundle Assign::accept(Visitor* visitor) {
     return visitor->visitAssignExpr(this);
 }
 
+/*
+// TODO
 Call::Call(Expr* callee, Token paren, vector<Expr*> argument):callee(callee),
     paren(paren), argument(argument) {}
     
 Bundle Call::accept::accept(Visitor* visitor) {
     return visitCallExpr(this);
 }
+*/
 
 Block::Block(vector<Stmt*> statements):statements(statements) {}
 
@@ -998,9 +1004,11 @@ Expr * Parser::unary() {
     }
     //Expr * p = primary();
     //cout << "unary() before return primary()\n";
-    return call();
+    return primary();
 }
 
+/*
+// TODO
 Expr* Parser::call() {
     Expr* expr = primary();
 
@@ -1031,7 +1039,8 @@ Expr* Parser::finishCall(Expr* callee) {
 
     return new Call(callee, paren, arguments);
 }
-  
+*/
+
 Expr * Parser::primary() {
     //cout << "called primary()\n";
     if (match({TokenType::FALSE_T})) {
