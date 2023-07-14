@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <memory>
 #include "Token.h"
 #include "Expr.h"
 #include "Stmt.h"
@@ -15,29 +16,29 @@ private:
     std::vector<Token>& tokens;
     int current = 0;
 
-    Expr* expression();
-    Stmt* declaration();
-    Stmt* statement();
-    Stmt* for_statement();
-    Stmt* if_statement();
-    Stmt* print_statement();
-    Stmt* return_statement();
-    Stmt* var_declaration();
-    Stmt* while_statement();
-    Stmt* expression_statement();
-    Stmt::Function* function(std::string kind);
-    std::vector<Stmt*> block();
-    Expr* assignment();
-    Expr* lox_or();
-    Expr* lox_and();
-    Expr* equality();
-    Expr* comparison();
-    Expr* term();
-    Expr* factor();
-    Expr* unary();
-    Expr* finish_call(Expr* callee);
-    Expr* call();
-    Expr* primary();
+    std::unique_ptr<Expr> expression();
+    std::unique_ptr<Stmt> declaration();
+    std::unique_ptr<Stmt> statement();
+    std::unique_ptr<Stmt> for_statement();
+    std::unique_ptr<Stmt> if_statement();
+    std::unique_ptr<Stmt> print_statement();
+    std::unique_ptr<Stmt> return_statement();
+    std::unique_ptr<Stmt> var_declaration();
+    std::unique_ptr<Stmt> while_statement();
+    std::unique_ptr<Stmt> expression_statement();
+    std::unique_ptr<Stmt::Function> function(std::string kind);
+    std::vector<std::unique_ptr<Stmt>> block();
+    std::unique_ptr<Expr> assignment();
+    std::unique_ptr<Expr> lox_or();
+    std::unique_ptr<Expr> lox_and();
+    std::unique_ptr<Expr> equality();
+    std::unique_ptr<Expr> comparison();
+    std::unique_ptr<Expr> term();
+    std::unique_ptr<Expr> factor();
+    std::unique_ptr<Expr> unary();
+    std::unique_ptr<Expr> finish_call(std::unique_ptr<Expr> callee);
+    std::unique_ptr<Expr> call();
+    std::unique_ptr<Expr> primary();
     // consume token if in types, otherwise return false
     bool match(std::vector<TokenType> types);
     Token consume(TokenType type, std::string message);
@@ -53,6 +54,6 @@ private:
     void synchronize();
 public:
     Parser(std::vector<Token>& tokens);
-    // Expr* parse();
-    std::vector<Stmt*> parse();
+    // std::unique_ptr<Expr> parse();
+    std::vector<std::unique_ptr<Stmt>> parse();
 };

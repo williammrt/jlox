@@ -2,6 +2,7 @@
 #define Stmt_H
 
 #include <vector>
+#include <memory>
 #include "Token.h"
 #include "Object.h"
 #include "Expr.h"
@@ -36,17 +37,17 @@ public:
 
 class Stmt::Block final: public Stmt {
 public:
-	std::vector<Stmt*> statements;
+	std::vector<std::unique_ptr<Stmt>> statements;
 
-	Block(std::vector<Stmt*> statements);
+	Block(std::vector<std::unique_ptr<Stmt>> statements);
 	Object accept(Visitor* visitor) override;
 };
 
 class Stmt::Expression final: public Stmt {
 public:
-	Expr* expression;
+	std::unique_ptr<Expr> expression;
 
-	Expression(Expr* expression);
+	Expression(std::unique_ptr<Expr> expression);
 	Object accept(Visitor* visitor) override;
 };
 
@@ -54,54 +55,54 @@ class Stmt::Function final: public Stmt {
 public:
 	Token name;
 	std::vector<Token> params;
-	std::vector<Stmt*> body;
+	std::vector<std::unique_ptr<Stmt>> body;
 
-	Function(Token name, std::vector<Token> params, std::vector<Stmt*> body);
+	Function(Token name, std::vector<Token> params, std::vector<std::unique_ptr<Stmt>> body);
 	Object accept(Visitor* visitor) override;
 };
 
 class Stmt::If final: public Stmt {
 public:
-	Expr* condition;
-	Stmt* thenBranch;
-	Stmt* elseBranch;
+	std::unique_ptr<Expr> condition;
+	std::unique_ptr<Stmt> thenBranch;
+	std::unique_ptr<Stmt> elseBranch;
 
-	If(Expr* condition, Stmt* thenBranch, Stmt* elseBranch);
+	If(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> thenBranch, std::unique_ptr<Stmt> elseBranch);
 	Object accept(Visitor* visitor) override;
 };
 
 class Stmt::Print final: public Stmt {
 public:
-	Expr* expression;
+	std::unique_ptr<Expr> expression;
 
-	Print(Expr* expression);
+	Print(std::unique_ptr<Expr> expression);
 	Object accept(Visitor* visitor) override;
 };
 
 class Stmt::Return final: public Stmt {
 public:
 	Token keyword;
-	Expr* value;
+	std::unique_ptr<Expr> value;
 
-	Return(Token keyword, Expr* value);
+	Return(Token keyword, std::unique_ptr<Expr> value);
 	Object accept(Visitor* visitor) override;
 };
 
 class Stmt::Var final: public Stmt {
 public:
 	Token name;
-	Expr* initializer;
+	std::unique_ptr<Expr> initializer;
 
-	Var(Token name, Expr* initializer);
+	Var(Token name, std::unique_ptr<Expr> initializer);
 	Object accept(Visitor* visitor) override;
 };
 
 class Stmt::While final: public Stmt {
 public:
-	Expr* condition;
-	Stmt* body;
+	std::unique_ptr<Expr> condition;
+	std::unique_ptr<Stmt> body;
 
-	While(Expr* condition, Stmt* body);
+	While(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body);
 	Object accept(Visitor* visitor) override;
 };
 

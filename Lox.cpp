@@ -10,7 +10,6 @@
 #include "Scanner.h"
 #include "Parser.h"
 #include "Expr.h"
-#include "Ast_Printer.h"
 #include "Interpreter.h"
 
 using std::string, std::cout, std::cerr;
@@ -81,14 +80,14 @@ void run(string source) {
     
     Parser parser(tokens);
     // Expr* expression = parser.parse();
-    std::vector<Stmt*> statements = parser.parse();
+    std::vector<std::unique_ptr<Stmt>> statements = parser.parse();
     // Stop if there was a syntax error.
     if (hadError) { return; }
     
     // cout << "Ast_Printer: " <<Ast_Printer().print(expression) << '\n';
 
     // interpreter.interpret(expression);
-    interpreter.interpret(statements);
+    interpreter.interpret(std::move(statements));
     if (hadRuntimeError) { std::exit(70); }
 }
 

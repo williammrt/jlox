@@ -25,8 +25,8 @@ public:
 
     Interpreter();
     // void interpret(Expr* expression);
-    void interpret(std::vector<Stmt*> statements);
-    void execute_block(std::vector<Stmt*> statements, Environment* environment);
+    void interpret(std::vector<std::unique_ptr<Stmt>> statements);
+    void execute_block(const std::vector<std::unique_ptr<Stmt>>& statements, Environment* environment);
 
     Object visit_Literal_Expr(Expr::Literal* expr) override;
     Object visit_Logical_Expr(Expr::Logical* expr) override;

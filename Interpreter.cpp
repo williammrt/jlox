@@ -32,7 +32,7 @@ bool Interpreter::is_equal(Object a, Object b) {
         return false;
     }
 
-    switch (a.index()) {
+    switch (a.index()) {    
         case 1:
             return true;
         case 2:
@@ -83,23 +83,23 @@ Interpreter::Interpreter() {
     globals.define("clock", new native_clock);
 }
 
-void Interpreter::interpret(std::vector<Stmt*> statements) {
+void Interpreter::interpret(std::vector<std::unique_ptr<Stmt>> statements) {
     try {
-        for (Stmt* statement: statements) {
-            execute(statement);
+        for (const std::unique_ptr<Stmt>& statement: statements) {
+            execute(statement.get());
         }
     } catch (Lox_runtime_error& error) {
         report_runtime_error(error);
     }
 }
 
-void Interpreter::execute_block(std::vector<Stmt*> statements, Environment* new_env) {
+void Interpreter::execute_block(const std::vector<std::unique_ptr<Stmt>>& statements, Environment* new_env) {
     Environment* previous = environment;
     try {
         environment = new_env;
 
-        for (Stmt* statement: statements) {
-            execute(statement);
+        for (const std::unique_ptr<Stmt>& statement: statements) {
+            execute(statement.get());
         }
     } catch (...) {
         environment = previous;
@@ -115,7 +115,7 @@ Object Interpreter::visit_Literal_Expr(Expr::Literal* expr) {
 }
 
 Object Interpreter::visit_Logical_Expr(Expr::Logical* expr) {
-    Object left = evaluate(expr->left);
+    Object left = evaluate(expr->left.get());
 
     if ((expr->op).type == OR) {
         if (is_truthy(left)) {
@@ -127,11 +127,11 @@ Object Interpreter::visit_Logical_Expr(Expr::Logical* expr) {
         }
     }
 
-    return evaluate(expr->right);
+    return evaluate(expr->right.get());
 }
 
 Object Interpreter::visit_Unary_Expr(Expr::Unary* expr) {
-    Object right = evaluate(expr->right);
+    Object right = evaluate(expr->right.get());
 
     switch ((expr->op).type) {
         case BANG:
@@ -148,11 +148,11 @@ Object Interpreter::visit_Unary_Expr(Expr::Unary* expr) {
 }
 
 Object Interpreter::visit_Call_Expr(Expr::Call* expr) {
-    Object callee = evaluate(expr->callee);
+    Object callee = evaluate(expr->callee.get());
 
     std::vector<Object> arguments;
-    for (Expr* argument: expr->arguments) {
-        arguments.push_back(evaluate(argument));
+    for (const std::unique_ptr<Expr>& argument: expr->arguments) {
+        arguments.push_back(evaluate(argument.get()));
     }
 
     // ch 10
@@ -176,8 +176,8 @@ Object Interpreter::visit_Variable_Expr(Expr::Variable* expr) {
 }
 
 Object Interpreter::visit_Binary_Expr(Expr::Binary* expr) {
-    Object left = evaluate(expr->left);
-    Object right = evaluate(expr->right);
+    Object left = evaluate(expr->left.get());
+    Object right = evaluate(expr->right.get());
     // std::cout << ".index() " << left.index() << " and " << right.index() << "\n";
     // std::cout << std::get<std::string>(left) << " " << expr->op.lexeme << " " << std::get<std::string>(right) << '\n';
     // std::cout << left.index() << " " << expr->op.lexeme << " " << std::get<double>(right) << '\n';
@@ -224,11 +224,11 @@ Object Interpreter::visit_Binary_Expr(Expr::Binary* expr) {
 }
 
 Object Interpreter::visit_Grouping_Expr(Expr::Grouping* expr) {
-    return evaluate(expr->expression);
+    return evaluate(expr->expression.get());
 }
 
 Object Interpreter::visit_Expression_Stmt(Stmt::Expression* stmt) {
-    evaluate(stmt->expression);
+    evaluate(stmt->expression.get());
     return {};
 }
 
@@ -239,17 +239,17 @@ Object Interpreter::visit_Function_Stmt(Stmt::Function* stmt) {
 }
 
 Object Interpreter::visit_If_Stmt(Stmt::If* stmt) {
-    if (is_truthy(evaluate(stmt->condition))) {
-        execute(stmt->thenBranch);
+    if (is_truthy(evaluate(stmt->condition.get()))) {
+        execute(stmt->thenBranch.get());
     } else if (stmt->elseBranch) {
-        execute(stmt->elseBranch);
+        execute(stmt->elseBranch.get());
     }
 
     return {};
 }
 
 Object Interpreter::visit_Print_Stmt(Stmt::Print* stmt) {
-    Object value = evaluate(stmt->expression);
+    Object value = evaluate(stmt->expression.get());
     std::cout << stringify_Object(value) << '\n';
     return {};
 }
@@ -257,7 +257,7 @@ Object Interpreter::visit_Print_Stmt(Stmt::Print* stmt) {
 Object Interpreter::visit_Return_Stmt(Stmt::Return* stmt) {
     Object value;
     if (stmt->value) {
-        value = evaluate(stmt->value);
+        value = evaluate(stmt->value.get());
     }   
     throw Return(value);
 }
@@ -265,7 +265,7 @@ Object Interpreter::visit_Return_Stmt(Stmt::Return* stmt) {
 Object Interpreter::visit_Var_Stmt(Stmt::Var* stmt) {
     Object value = Nil{};
     if (stmt->initializer != nullptr) {
-        value = evaluate(stmt->initializer);
+        value = evaluate(stmt->initializer.get());
     }
 
     environment->define((stmt->name).lexeme, value);
@@ -273,14 +273,14 @@ Object Interpreter::visit_Var_Stmt(Stmt::Var* stmt) {
 }
 
 Object Interpreter::visit_While_Stmt(Stmt::While* stmt) {
-    while (is_truthy(evaluate(stmt->condition))) {
-        execute(stmt->body);
+    while (is_truthy(evaluate(stmt->condition.get()))) {
+        execute(stmt->body.get());
     }
     return {};
 }
 
 Object Interpreter::visit_Assign_Expr(Expr::Assign* expr) {
-    Object value = evaluate(expr->value);
+    Object value = evaluate(expr->value.get());
     environment->assign(expr->name, value);
     return value;
 }

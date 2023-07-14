@@ -20,8 +20,12 @@ def define_type(h_writer, cpp_writer, base_name, class_name, field_list):
     cpp_writer.write(f"{base_name}::{class_name}::{class_name}({field_list}): ")
     init_list = ""
     for field in fields:
-        name = field.split(" ")[1]
-        init_list += f"{name} {{{name}}}, "
+        arg_type, name = field.split(" ")
+        print(arg_type)
+        if arg_type == 'Token':
+            init_list += f"{name} {{{name}}}, "
+        else:
+            init_list += f"{name} {{std::move({name})}}, "
     init_list = init_list[:-2]
     cpp_writer.write(init_list)
     cpp_writer.write(" {}\n\n")
@@ -41,6 +45,7 @@ def define_ast(output_dir, base_name, types):
 
     # .h header
     h_writer.write('#include <vector>\n')
+    h_writer.write('#include <memory>\n')
     h_writer.write('#include "Token.h"\n')
     h_writer.write('#include "Object.h"\n')
     if base_name != 'Expr':
@@ -88,27 +93,27 @@ if (len(sys.argv) != 2):
     
 output_dir = sys.argv[1]
 define_ast(output_dir, "Expr", [
-    "Assign   : Token name, Expr* value",
-    "Binary   : Expr* left, Token op, Expr* right",
-    "Call     : Expr* callee, Token paren, std::vector<Expr*> arguments",
-    "Grouping : Expr* expression",
+    "Assign   : Token name, std::unique_ptr<Expr> value",
+    "Binary   : std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right",
+    "Call     : std::unique_ptr<Expr> callee, Token paren, std::vector<std::unique_ptr<Expr>> arguments",
+    "Grouping : std::unique_ptr<Expr> expression",
     "Literal  : Object value",
-    "Logical  : Expr* left, Token op, Expr* right",
-    "Unary    : Token op, Expr* right",
+    "Logical  : std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right",
+    "Unary    : Token op, std::unique_ptr<Expr> right",
     "Variable : Token name"
     ])
 
 define_ast(output_dir, "Stmt", [
-    "Block      : std::vector<Stmt*> statements",
-    "Expression : Expr* expression",
+    "Block      : std::vector<std::unique_ptr<Stmt>> statements",
+    "Expression : std::unique_ptr<Expr> expression",
     "Function   : Token name, std::vector<Token> params," +
-                  " std::vector<Stmt*> body",
-    "If         : Expr* condition, Stmt* thenBranch," +
-                  " Stmt* elseBranch",
-    "Print      : Expr* expression",
-    "Return     : Token keyword, Expr* value",
-    "Var        : Token name, Expr* initializer",
-    "While      : Expr* condition, Stmt* body"
+                  " std::vector<std::unique_ptr<Stmt>> body",
+    "If         : std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> thenBranch," +
+                  " std::unique_ptr<Stmt> elseBranch",
+    "Print      : std::unique_ptr<Expr> expression",
+    "Return     : Token keyword, std::unique_ptr<Expr> value",
+    "Var        : Token name, std::unique_ptr<Expr> initializer",
+    "While      : std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body"
     ])
 
 

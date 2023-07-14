@@ -2,6 +2,7 @@
 #define Expr_H
 
 #include <vector>
+#include <memory>
 #include "Token.h"
 #include "Object.h"
 class Expr {
@@ -35,37 +36,37 @@ public:
 class Expr::Assign final: public Expr {
 public:
 	Token name;
-	Expr* value;
+	std::unique_ptr<Expr> value;
 
-	Assign(Token name, Expr* value);
+	Assign(Token name, std::unique_ptr<Expr> value);
 	Object accept(Visitor* visitor) override;
 };
 
 class Expr::Binary final: public Expr {
 public:
-	Expr* left;
+	std::unique_ptr<Expr> left;
 	Token op;
-	Expr* right;
+	std::unique_ptr<Expr> right;
 
-	Binary(Expr* left, Token op, Expr* right);
+	Binary(std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right);
 	Object accept(Visitor* visitor) override;
 };
 
 class Expr::Call final: public Expr {
 public:
-	Expr* callee;
+	std::unique_ptr<Expr> callee;
 	Token paren;
-	std::vector<Expr*> arguments;
+	std::vector<std::unique_ptr<Expr>> arguments;
 
-	Call(Expr* callee, Token paren, std::vector<Expr*> arguments);
+	Call(std::unique_ptr<Expr> callee, Token paren, std::vector<std::unique_ptr<Expr>> arguments);
 	Object accept(Visitor* visitor) override;
 };
 
 class Expr::Grouping final: public Expr {
 public:
-	Expr* expression;
+	std::unique_ptr<Expr> expression;
 
-	Grouping(Expr* expression);
+	Grouping(std::unique_ptr<Expr> expression);
 	Object accept(Visitor* visitor) override;
 };
 
@@ -79,20 +80,20 @@ public:
 
 class Expr::Logical final: public Expr {
 public:
-	Expr* left;
+	std::unique_ptr<Expr> left;
 	Token op;
-	Expr* right;
+	std::unique_ptr<Expr> right;
 
-	Logical(Expr* left, Token op, Expr* right);
+	Logical(std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right);
 	Object accept(Visitor* visitor) override;
 };
 
 class Expr::Unary final: public Expr {
 public:
 	Token op;
-	Expr* right;
+	std::unique_ptr<Expr> right;
 
-	Unary(Token op, Expr* right);
+	Unary(Token op, std::unique_ptr<Expr> right);
 	Object accept(Visitor* visitor) override;
 };
 
