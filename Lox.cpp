@@ -96,7 +96,8 @@ void error(int line, string message) {
 }
 
 void report(int line, string where, string message) {
-    cerr << "[line" << line << "] Error" << where << ": " << message << '\n';
+    cerr << "[line " << line << "] Error" << where << ": " << message << '\n';
+    
     hadError = true;
 }
 

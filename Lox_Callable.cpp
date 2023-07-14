@@ -24,8 +24,8 @@ int Lox_function::arity() {
 }
 
 Object Lox_function::call(Interpreter& interpreter, std::vector<Object> arguments) {
-    // Environment* environment = new Environment(interpreter.globals);
-    Environment* environment = closure;
+    Environment* environment = new Environment(interpreter.globals);
+    // Environment* environment = closure;
     for (int i = 0; i < static_cast<int>((declaration->params).size()); i +=1)  {
         environment->define((declaration->params)[i].lexeme, arguments[i]);
     }

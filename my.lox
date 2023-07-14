@@ -31,3 +31,6 @@ var c = "global c";
 print a;
 print b;
 print c;
+
+
+print {20+20};

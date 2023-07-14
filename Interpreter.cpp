@@ -255,7 +255,7 @@ Object Interpreter::visit_Print_Stmt(Stmt::Print* stmt) {
 }
 
 Object Interpreter::visit_Return_Stmt(Stmt::Return* stmt) {
-    Object value;
+    Object value = Nil {};
     if (stmt->value) {
         value = evaluate(stmt->value.get());
     }   

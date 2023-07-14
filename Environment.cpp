@@ -17,7 +17,7 @@ Object Environment::get(Token name) {
         return enclosing->get(name);
     }
 
-    throw new Lox_runtime_error(name, "Undefined variable '" + name.lexeme + "'.");
+    throw Lox_runtime_error(name, "Undefined variable '" + name.lexeme + "'.");
 }
 
 void Environment::assign(Token name, Object value) {
