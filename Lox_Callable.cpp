@@ -17,15 +17,14 @@ std::string native_clock::to_string() {
 }
 
 Lox_function::Lox_function(Stmt::Function* declaration, Environment* closure)
-    :declaration {declaration}, closure {new Environment(*closure)} {}
+    :declaration {declaration}, closure {closure} {}
 
 int Lox_function::arity() {
     return static_cast<int>((declaration->params).size());
 }
 
 Object Lox_function::call(Interpreter& interpreter, std::vector<Object> arguments) {
-    Environment* environment = new Environment(interpreter.globals);
-    // Environment* environment = closure;
+    Environment* environment = new Environment(*closure);
     for (int i = 0; i < static_cast<int>((declaration->params).size()); i +=1)  {
         environment->define((declaration->params)[i].lexeme, arguments[i]);
     }
