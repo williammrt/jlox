@@ -11,6 +11,7 @@
 #include "Parser.h"
 #include "Expr.h"
 #include "Interpreter.h"
+#include "Resolver.h"
 
 using std::string, std::cout, std::cerr;
 
@@ -84,6 +85,9 @@ void run(string source) {
     // Stop if there was a syntax error.
     if (hadError) { return; }
     
+    Resolver resolver(interpreter);
+    resolver.resolve(statements);
+    if (hadError) { return; }
     // cout << "Ast_Printer: " <<Ast_Printer().print(expression) << '\n';
 
     // interpreter.interpret(expression);

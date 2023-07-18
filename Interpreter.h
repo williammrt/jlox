@@ -10,6 +10,7 @@
 class Interpreter final: public Expr::Visitor, public Stmt::Visitor {
 private:
     Environment* environment;
+    std::unordered_map<Expr*, int> locals;
 
     Object evaluate(Expr* expr);
     void execute(Stmt* stmt);
@@ -18,7 +19,7 @@ private:
     bool is_equal(Object a, Object b);
     void check_number_operand(Token op, Object operand);
     void check_number_operands(Token op, Object left, Object right);
-
+    Object lookup_variable(Token name, Expr* expr);
 public:
     // holds a fixed reference to the outermost global environment
     Environment globals;
@@ -27,6 +28,7 @@ public:
     // void interpret(Expr* expression);
     void interpret(std::vector<std::unique_ptr<Stmt>> statements);
     void execute_block(const std::vector<std::unique_ptr<Stmt>>& statements, Environment* environment);
+    void resolve(Expr* expr, int depth);
 
     Object visit_Literal_Expr(Expr::Literal* expr) override;
     Object visit_Logical_Expr(Expr::Logical* expr) override;

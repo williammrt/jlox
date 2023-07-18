@@ -66,6 +66,13 @@ void Interpreter::check_number_operands(Token op, Object left, Object right) {
     throw Lox_runtime_error(op, "Operands must be numbers.");
 }
 
+Object Interpreter::lookup_variable(Token name, Expr* expr) {
+    if (locals.count(expr)) {
+        return environment->get_at(locals[expr], name.lexeme);
+    } else {
+        return globals.get(name);
+    }
+}
 /*
 void Interpreter::interpret(Expr* expression) {
     try {
@@ -107,6 +114,10 @@ void Interpreter::execute_block(const std::vector<std::unique_ptr<Stmt>>& statem
     }
     // finally in Java
     environment = previous;
+}
+
+void Interpreter::resolve(Expr* expr, int depth) {
+    locals[expr] = depth;
 }
 
 Object Interpreter::visit_Literal_Expr(Expr::Literal* expr) {
@@ -172,7 +183,8 @@ Object Interpreter::visit_Call_Expr(Expr::Call* expr) {
 }
 
 Object Interpreter::visit_Variable_Expr(Expr::Variable* expr) {
-    return environment->get(expr->name);
+    // return environment->get(expr->name);
+    return lookup_variable(expr->name, expr);
 }
 
 Object Interpreter::visit_Binary_Expr(Expr::Binary* expr) {
@@ -281,7 +293,13 @@ Object Interpreter::visit_While_Stmt(Stmt::While* stmt) {
 
 Object Interpreter::visit_Assign_Expr(Expr::Assign* expr) {
     Object value = evaluate(expr->value.get());
-    environment->assign(expr->name, value);
+    // environment->assign(expr->name, value);
+    if (locals.count(expr)) {
+        environment->assign_at(locals[expr], expr->name, value);
+    } else {
+        globals.assign(expr->name, value);
+    }
+
     return value;
 }
 
